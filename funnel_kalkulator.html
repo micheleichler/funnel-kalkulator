@@ -1,0 +1,741 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Funnel Kalkulator – Michel Eichler</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap');
+
+  :root {
+    --bg:        #194666;
+    --surface:   #1d4f73;
+    --card:      #1a4a6b;
+    --card2:     #163f5c;
+    --border:    rgba(219,192,120,.18);
+    --border-hi: rgba(219,192,120,.45);
+    --text:      #f5eedc;
+    --muted:     rgba(245,238,220,.52);
+    --gold:      #dbc078;
+    --gold-dark: #12304a;
+    --blue:      #23628f;
+    --blue-light:#2d7eb8;
+    --green:     #4ecb82;
+    --yellow:    #f5c842;
+    --red:       #e8442e;
+    --radius:    22px;
+    --shadow:    0 32px 80px rgba(10,28,46,.65);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+
+  body{
+    font-family:'Inter',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    background:
+      radial-gradient(ellipse at 0% 0%, rgba(45,126,184,.35) 0%, transparent 50%),
+      radial-gradient(ellipse at 100% 100%, rgba(219,192,120,.12) 0%, transparent 45%),
+      var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+
+  button,input{font:inherit;}
+  button{-webkit-tap-highlight-color:transparent;cursor:pointer;}
+
+  /* ── LAYOUT ── */
+  .page{width:min(1200px,100%);margin:0 auto;padding:32px 28px 72px;}
+
+  /* ── HERO ── */
+  .hero{
+    display:grid;
+    grid-template-columns:1.2fr .8fr;
+    gap:28px;
+    align-items:end;
+    margin:24px 0 40px;
+  }
+
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:7px 14px;
+    border:1px solid var(--border);
+    border-radius:999px;
+    background:rgba(219,192,120,.1);
+    color:var(--gold);
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    margin-bottom:22px;
+  }
+
+  .eyebrow::before{
+    content:'';width:6px;height:6px;
+    border-radius:50%;background:var(--gold);display:block;
+  }
+
+  h1{
+    font-size:clamp(32px,5.2vw,68px);
+    line-height:.91;
+    letter-spacing:-.06em;
+    font-weight:900;
+    color:var(--text);
+  }
+
+  h1 em{
+    font-style:normal;
+    color:var(--gold);
+  }
+
+  .hero-note{
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:22px 24px;
+    background:rgba(219,192,120,.07);
+    color:var(--muted);
+    line-height:1.65;
+    font-size:14px;
+  }
+
+  .hero-note strong{color:var(--text);}
+
+  /* ── APP GRID ── */
+  .app{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+    align-items:stretch;
+  }
+
+  /* ── CARD ── */
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:28px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .card-inner{padding:28px;flex:1;}
+
+  .section-kicker{
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:8px;
+  }
+
+  .section-title{
+    font-size:21px;
+    font-weight:900;
+    letter-spacing:-.04em;
+    margin-bottom:26px;
+    color:var(--text);
+  }
+
+  /* ── FIELDS ── */
+  .field{margin-bottom:26px;}
+
+  label{
+    display:block;
+    font-weight:800;
+    font-size:13px;
+    letter-spacing:.01em;
+    margin-bottom:6px;
+    color:var(--text);
+  }
+
+  .hint{
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.55;
+    margin-bottom:12px;
+  }
+
+  /* ── OPTIONS ── */
+  .options{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+  }
+
+  .option{
+    border:1px solid var(--border);
+    background:var(--card2);
+    border-radius:14px;
+    padding:13px 8px;
+    font-weight:800;
+    font-size:13px;
+    color:var(--muted);
+    transition:.14s ease;
+    min-height:50px;
+  }
+
+  .option:hover{border-color:var(--border-hi);color:var(--text);}
+
+  .option.active{
+    border-color:var(--gold);
+    background:rgba(219,192,120,.14);
+    color:var(--gold);
+  }
+
+  /* ── INPUTS ── */
+  .number-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+  input[type=number]{
+    width:100%;
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:14px 16px;
+    font-size:20px;
+    font-weight:900;
+    outline:none;
+    background:var(--card2);
+    color:var(--text);
+    -moz-appearance:textfield;
+    transition:border-color .15s;
+  }
+
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+  input[type=number]:focus{border-color:var(--gold);}
+
+  .input-error{
+    display:none;
+    margin-top:8px;
+    color:var(--red);
+    font-size:12px;
+    font-weight:800;
+  }
+
+  /* ── CTA BUTTON ── */
+  .calculate{
+    margin-top:6px;
+    display:block;
+    width:100%;
+    border:0;
+    border-radius:16px;
+    padding:18px 20px;
+    background:var(--gold);
+    color:var(--gold-dark);
+    font-weight:900;
+    font-size:15px;
+    letter-spacing:-.01em;
+    box-shadow:0 10px 32px rgba(219,192,120,.28);
+    transition:.15s ease;
+  }
+
+  .calculate:hover{transform:translateY(-1px);box-shadow:0 16px 44px rgba(219,192,120,.38);}
+  .calculate:active{transform:translateY(0);}
+
+  .logic{
+    margin-top:16px;
+    padding:14px 16px;
+    border-radius:14px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.07);
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.6;
+  }
+
+  /* ── PLACEHOLDER ── */
+  .result-placeholder{
+    flex:1;
+    display:grid;
+    place-items:center;
+    padding:48px 30px;
+    text-align:center;
+  }
+
+  .placeholder-box{max-width:360px;}
+
+  .placeholder-icon{
+    width:70px;height:70px;
+    margin:0 auto 20px;
+    display:grid;
+    place-items:center;
+    border-radius:22px;
+    background:rgba(219,192,120,.12);
+    border:1px solid rgba(219,192,120,.3);
+    font-size:26px;
+  }
+
+  .placeholder-box h2{
+    font-size:21px;
+    letter-spacing:-.04em;
+    margin-bottom:10px;
+    color:var(--text);
+    font-weight:900;
+  }
+
+  .placeholder-box p{color:var(--muted);font-size:13px;line-height:1.65;}
+
+  /* ── RESULTS ── */
+  .results{display:none;flex:1;flex-direction:column;}
+
+  .result-header{
+    padding:26px 28px;
+    border-bottom:1px solid var(--border);
+    background:rgba(219,192,120,.06);
+  }
+
+  .result-header p{
+    margin-top:10px;
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.6;
+  }
+
+  .score{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    margin-bottom:6px;
+  }
+
+  .score strong{
+    font-size:clamp(22px,3.2vw,38px);
+    letter-spacing:-.05em;
+    line-height:1;
+    font-weight:900;
+    color:var(--text);
+  }
+
+  /* ── PILLS ── */
+  .pill{
+    border-radius:999px;
+    padding:7px 14px;
+    font-weight:900;
+    font-size:11px;
+    letter-spacing:.06em;
+    white-space:nowrap;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:76px;
+    text-transform:uppercase;
+  }
+
+  .pill.green{background:rgba(78,203,130,.15);color:var(--green);border:1px solid rgba(78,203,130,.3);}
+  .pill.yellow{background:rgba(245,200,66,.15);color:var(--yellow);border:1px solid rgba(245,200,66,.3);}
+  .pill.red{background:rgba(232,68,46,.15);color:var(--red);border:1px solid rgba(232,68,46,.3);}
+  .pill.dark{background:rgba(255,255,255,.1);color:var(--text);border:1px solid var(--border);}
+
+  /* ── METRICS ── */
+  .metrics{display:grid;gap:9px;}
+
+  .metric{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:12px;
+    align-items:center;
+    padding:14px 16px;
+    border:1px solid var(--border);
+    border-radius:16px;
+    background:var(--card2);
+    transition:border-color .14s;
+  }
+
+  .metric:hover{border-color:var(--border-hi);}
+  .metric b{font-size:13px;font-weight:800;color:var(--text);}
+  .metric span{color:var(--muted);font-size:12px;line-height:1.4;margin-top:3px;display:block;}
+
+  .big-number{
+    font-size:24px;
+    font-weight:950;
+    letter-spacing:-.05em;
+    color:var(--gold);
+  }
+
+  /* ── BOXES ── */
+  .recommendation{
+    margin-top:14px;
+    padding:16px;
+    border-radius:16px;
+    background:rgba(78,203,130,.07);
+    border:1px solid rgba(78,203,130,.2);
+    color:rgba(200,242,219,.85);
+    font-size:13px;
+    line-height:1.65;
+  }
+
+  .recommendation b{
+    display:block;
+    margin-bottom:5px;
+    color:var(--green);
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    font-weight:900;
+  }
+
+  .explain{
+    margin-top:10px;
+    padding:16px;
+    border-radius:16px;
+    background:rgba(219,192,120,.07);
+    border:1px solid rgba(219,192,120,.18);
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.7;
+  }
+
+  .cta-result{
+    margin-top:14px;
+    display:block;
+    width:100%;
+    border:0;
+    border-radius:16px;
+    padding:17px 20px;
+    background:var(--gold);
+    color:var(--gold-dark);
+    font-weight:900;
+    font-size:14px;
+    letter-spacing:-.01em;
+    text-align:center;
+    text-decoration:none;
+    transition:.15s ease;
+  }
+
+  .cta-result:hover{transform:translateY(-1px);}
+
+  .micro{
+    margin-top:10px;
+    color:var(--muted);
+    font-size:11px;
+    line-height:1.5;
+    text-align:center;
+  }
+
+  /* ── DIVIDER LINE ── */
+  .gold-line{
+    height:1px;
+    background:linear-gradient(90deg,transparent,var(--gold),transparent);
+    opacity:.3;
+    margin:4px 0;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:940px){
+    .hero{grid-template-columns:1fr;}
+    .app{grid-template-columns:1fr;}
+  }
+
+  @media(max-width:600px){
+    .page{padding:16px 16px 56px;}
+    .options{grid-template-columns:1fr;}
+    .number-grid{grid-template-columns:1fr;}
+    .score{flex-direction:column;align-items:flex-start;}
+    .metric{grid-template-columns:1fr;}
+    .pill{width:fit-content;}
+    .card-inner,.result-header{padding:20px;}
+  }
+
+  @keyframes fadeUp{
+    from{opacity:0;transform:translateY(14px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+
+  .results.visible{animation:fadeUp .3s ease forwards;}
+</style>
+</head>
+<body>
+<main class="page">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Funnel Kalkulator</div>
+      <h1>Ist dein Funnel wirklich <em>profitabel</em> — oder nur auf Umsatz gebaut?</h1>
+    </div>
+    <div class="hero-note">
+      <strong>Symbolische Schnellanalyse:</strong> Viele Funnels scheitern nicht an den Ads, sondern daran, dass Produktpreis, Zielprofit, Zielgruppe und Umsetzung nicht zusammenpassen. Dieser Rechner macht genau diese Lücke sichtbar.
+    </div>
+  </section>
+
+  <!-- APP -->
+  <section class="app">
+
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="card-inner">
+        <p class="section-kicker">Schritt 1</p>
+        <h2 class="section-title">Deine Ausgangslage</h2>
+
+        <div class="field">
+          <label>Skill-Level</label>
+          <p class="hint">Wie erfahren bist du darin, Kampagnen, Funnels und Zahlen selbst zu erstellen, zu optimieren und zu beurteilen?</p>
+          <div class="options" data-group="skill">
+            <button type="button" class="option active" data-value="beginner">Anfänger</button>
+            <button type="button" class="option" data-value="advanced">Fortgeschritten</button>
+            <button type="button" class="option" data-value="pro">Profi</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Zielgruppen-Temperatur</label>
+          <p class="hint">Wie nah ist deine Zielgruppe bereits am Kauf?</p>
+          <div class="options" data-group="temperature">
+            <button type="button" class="option active" data-value="cold">Eiskalt</button>
+            <button type="button" class="option" data-value="warm">Warm</button>
+            <button type="button" class="option" data-value="ready">Ready to buy</button>
+          </div>
+        </div>
+
+        <div class="number-grid">
+          <div class="field">
+            <label for="profit">Wunsch-Zielprofit</label>
+            <input id="profit" type="number" inputmode="decimal" min="1" step="100" value="5000"/>
+            <div class="input-error" id="profitError">Bitte gib einen Zielprofit größer als 0 ein.</div>
+          </div>
+          <div class="field">
+            <label for="price">Ø Produktpreis</label>
+            <input id="price" type="number" inputmode="decimal" min="1" step="50" value="500"/>
+            <div class="input-error" id="priceError">Bitte gib einen Produktpreis größer als 0 ein.</div>
+          </div>
+        </div>
+
+        <button type="button" class="calculate" id="calculateBtn">Jetzt Funnel einschätzen →</button>
+
+        <div class="logic">
+          Bewusst simpel: Der Rechner gibt keine falsche Scheingenauigkeit aus. Exakte Zahlen hängen von Klickpreisen, Landingpage-Conversion, Abschlussquote und Folgekosten ab. Hier geht es um die erste strategische Einschätzung.
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT CARD -->
+    <div class="card" id="resultCard">
+      <div class="result-placeholder" id="placeholder">
+        <div class="placeholder-box">
+          <div class="placeholder-icon">↗</div>
+          <h2>Dein Ergebnis erscheint nach der Berechnung.</h2>
+          <p>Wähle links deine Ausgangslage aus. Nach dem Klick siehst du Profitabilität, ROAS-Erwartung, Werbebudget und Risiko.</p>
+        </div>
+      </div>
+
+      <div class="results" id="results" aria-live="polite">
+        <div class="result-header">
+          <div class="score">
+            <strong id="mainStatus">Hoher Aufwand</strong>
+            <div id="mainPill" class="pill red">Rot</div>
+          </div>
+          <p id="summary">Für dieses Ziel brauchst du voraussichtlich viel Budget und saubere Funnel-Struktur.</p>
+        </div>
+
+        <div class="card-inner">
+          <p class="section-kicker">Schritt 2</p>
+          <h2 class="section-title">Deine Ergebniszahlen</h2>
+
+          <div class="metrics">
+            <div class="metric">
+              <div>
+                <b>Benötigte Verkäufe</b>
+                <span>Zielprofit geteilt durch durchschnittlichen Produktpreis.</span>
+              </div>
+              <div class="big-number" id="salesNeeded">10</div>
+            </div>
+            <div class="metric">
+              <div>
+                <b>Profitabilität</b>
+                <span>Ob dein Ziel wirtschaftlich sinnvoll wirkt.</span>
+              </div>
+              <div id="profitability" class="pill red">Rot</div>
+            </div>
+            <div class="metric">
+              <div>
+                <b>ROAS-Erwartung</b>
+                <span>Je kälter die Zielgruppe, desto niedriger der realistische Start-ROAS.</span>
+              </div>
+              <div id="roas" class="pill red">Niedrig</div>
+            </div>
+            <div class="metric">
+              <div>
+                <b>Bedarf Werbebudget</b>
+                <span>Wie viel bezahlte Reichweite nötig sein dürfte.</span>
+              </div>
+              <div id="budget" class="pill red">Hoch</div>
+            </div>
+            <div class="metric">
+              <div>
+                <b>Risiko</b>
+                <span>Wie hoch das Risiko ist, dass Funnel, Angebot und Ziel nicht zusammenpassen.</span>
+              </div>
+              <div id="risk" class="pill red">Hoch</div>
+            </div>
+          </div>
+
+          <div class="recommendation" id="recommendation"></div>
+          <div class="explain" id="explain"></div>
+          <a class="cta-result" href="#kontakt">Zahlen persönlich durchrechnen lassen →</a>
+          <p class="micro">Diese Einschätzung ist bewusst symbolisch. Für echte Planbarkeit braucht es eine Detailrechnung mit Funnel-KPIs.</p>
+        </div>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<script>
+  const state={skill:"beginner",temperature:"cold",profit:5000,price:500};
+
+  const labels={
+    beginner:"Anfänger",advanced:"Fortgeschrittener",pro:"Profi",
+    cold:"eiskalte Zielgruppe",warm:"warme Zielgruppe",ready:"Ready-to-buy Zielgruppe"
+  };
+
+  const skillProfiles={
+    beginner:{difficulty:3,meaning:"du hast wenig belastbare Funnel- und Kampagnenerfahrung"},
+    advanced:{difficulty:2,meaning:"du hast bereits Erfahrung, aber wahrscheinlich noch nicht jede Stellschraube sauber im Griff"},
+    pro:{difficulty:1,meaning:"du kannst Zahlen, Funnel und Kampagnen bereits aktiv steuern"}
+  };
+
+  const tempProfiles={
+    cold:{difficulty:3,roasPenalty:2,budgetPenalty:2,riskPenalty:2,meaning:"deine Zielgruppe kennt dich oder dein Produkt kaum"},
+    warm:{difficulty:2,roasPenalty:1,budgetPenalty:1,riskPenalty:1,meaning:"deine Zielgruppe kennt dich bereits, ist aber noch nicht vollständig überzeugt"},
+    ready:{difficulty:1,roasPenalty:0,budgetPenalty:0,riskPenalty:0,meaning:"deine Zielgruppe ist stark vorgewärmt und braucht eher den letzten Kaufimpuls"}
+  };
+
+  const thr={salesPressure:[5,10,25],lowPrice:300,highPrice:2000};
+
+  document.querySelectorAll(".options").forEach(g=>{
+    g.addEventListener("click",e=>{
+      const btn=e.target.closest(".option");
+      if(!btn) return;
+      g.querySelectorAll(".option").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      state[g.dataset.group]=btn.dataset.value;
+    });
+  });
+
+  document.getElementById("profit").addEventListener("input",e=>{state.profit=Number(e.target.value||0);clearErr("profit");});
+  document.getElementById("price").addEventListener("input",e=>{state.price=Number(e.target.value||0);clearErr("price");});
+  document.getElementById("calculateBtn").addEventListener("click",calculate);
+
+  function clearErr(id){
+    document.getElementById(id).style.borderColor="";
+    document.getElementById(id+"Error").style.display="none";
+  }
+  function showErr(id){
+    document.getElementById(id).style.borderColor="var(--red)";
+    document.getElementById(id+"Error").style.display="block";
+  }
+  function validate(){
+    let ok=true;
+    if(!Number.isFinite(state.profit)||state.profit<=0){showErr("profit");ok=false;}
+    if(!Number.isFinite(state.price)||state.price<=0){showErr("price");ok=false;}
+    return ok;
+  }
+
+  function setPill(id,text,color){
+    const el=document.getElementById(id);
+    el.textContent=text;
+    el.className="pill "+color;
+  }
+
+  function pressure(n){return n<=5?1:n<=10?2:n<=25?3:4;}
+
+  function pressureText(n){
+    if(n>25) return"Der Verkaufsdruck ist sehr hoch, weil du mehr als 25 Verkäufe brauchst.";
+    if(n>10) return"Der Verkaufsdruck steigt deutlich, weil du mehr als 10 Verkäufe brauchst.";
+    if(n>5)  return"Der Verkaufsdruck ist moderat, weil du zwischen 6 und 10 Verkäufe brauchst.";
+    return"Der Verkaufsdruck ist niedrig, weil du maximal 5 Verkäufe brauchst.";
+  }
+
+  function colorFromLevel(v){
+    if(["Niedrig","Grün","Höher"].includes(v)) return"green";
+    if(["Mittel","Gelb"].includes(v)) return"yellow";
+    return"red";
+  }
+
+  function calcMetrics(skill,temp,n,price){
+    const sp=skillProfiles[skill],tp=tempProfiles[temp],pr=pressure(n);
+    let pf=sp.difficulty+tp.difficulty+pr;
+    let ro=tp.roasPenalty+pr;
+    let bu=tp.budgetPenalty+pr;
+    let ri=sp.difficulty+tp.riskPenalty+pr;
+    if(skill==="pro"){pf--;ro--;bu--;ri--;}
+    if(skill==="beginner"&&temp==="cold"){pf+=2;bu++;ri+=2;}
+    if(skill==="advanced"&&temp==="warm"){pf++;ro--;bu--;ri++;}
+    if(temp==="ready"){pf--;ro--;bu--;ri--;}
+    if(price<thr.lowPrice){pf++;bu++;ri++;}
+    if(price>=thr.highPrice&&n<=10){bu--;pf--;ri+=(skill==="beginner"?1:0);}
+    if(n>10){pf++;bu++;ri++;}
+    if(n>25){pf++;bu++;ri++;ro++;}
+    return{
+      profit:pf<=4?"Grün":pf<=6?"Gelb":"Rot",
+      roas:ro<=3?"Höher":ro<=5?"Mittel":"Niedrig",
+      budget:bu<=3?"Niedrig":bu<=5?"Mittel":"Hoch",
+      risk:ri<=4?"Niedrig":ri<=6?"Mittel":"Hoch"
+    };
+  }
+
+  function isCrit(v){return["Rot","Niedrig","Hoch"].includes(v);}
+  function isStrong(v){return["Grün","Höher","Niedrig"].includes(v);}
+
+  function mainAssessment(m){
+    const crits=[m.profit,m.roas,m.budget,m.risk].filter(isCrit).length;
+    const strong=[m.profit,m.roas,m.budget,m.risk].filter(isStrong).length;
+    if(crits>=3||m.profit==="Rot") return{title:"Hoher Aufwand",pill:"Rot",color:"red",text:"Dein Ziel ist nicht unmöglich, aber die Ausgangslage erzeugt aktuell viel Druck. Bevor du mehr Budget in Ads gibst, solltest du Funnel, Angebot, Marge und Conversion-Logik prüfen."};
+    if(strong>=3&&m.risk!=="Hoch") return{title:"Gute Ausgangslage",pill:"Grün",color:"green",text:"Dein Ziel wirkt mit dieser Ausgangslage grundsätzlich planbar. Entscheidend ist jetzt, die vorhandene Nachfrage sauber in Verkäufe zu übersetzen und die Zahlen konsequent zu tracken."};
+    return{title:"Machbar mit Struktur",pill:"Gelb",color:"yellow",text:"Das Ziel kann funktionieren, braucht aber eine klare Funnel-Struktur, gute Angebotslogik und sauberes Tracking. Einzelne Hebel sind noch kritisch."};
+  }
+
+  function getRecommendation(skill,temp,n,price,m){
+    if(m.profit==="Rot") return{title:"Empfohlener nächster Schritt",text:"Nicht sofort skalieren. Erst Funnel-Kalkulation, Angebot, Marge und Conversion prüfen. Häufig liegt das Problem nicht bei den Ads, sondern beim Produktpreis oder bei einer Angebotslogik, die selbst mit guten Benchmarks nicht profitabel wäre."};
+    if(skill==="beginner") return{title:"Empfohlener nächster Schritt",text:"Starte mit einem einfachen Mini-Workshop oder Mini-Produkt statt mit einem komplexen Evergreen-Funnel. Ziel: Nachfrage testen, Vertrauen aufbauen und erste belastbare Zahlen sammeln."};
+    if(temp==="cold") return{title:"Empfohlener nächster Schritt",text:"Baue vor dem direkten Verkauf mehr Vertrauen auf: Content, Webinar, Masterclass oder Diagnose-Funnel. Bei kalter Zielgruppe ist ein direkter Kauf oft teurer, langsamer und riskanter."};
+    if(skill==="pro"&&temp==="ready") return{title:"Empfohlener nächster Schritt",text:"Du kannst stärker auf ein Beratungs-, Webinar- oder High-Ticket-Angebot gehen. Die Zielgruppe braucht wahrscheinlich weniger Überzeugung, aber trotzdem eine saubere Angebots- und Abschlusslogik."};
+    return{title:"Empfohlener nächster Schritt",text:"Rechne den Funnel im Detail durch: Klickpreis, Landingpage-Conversion, Show-up-Rate, Abschlussquote, Marge und Folgekosten. Erst dann sieht man, ob der Funnel wirklich profitabel ist."};
+  }
+
+  function fmt(v){return Number(v).toLocaleString("de-DE",{style:"currency",currency:"EUR",maximumFractionDigits:0});}
+
+  function buildExplain(skill,temp,profit,price,n){
+    const sText=skillProfiles[skill].meaning;
+    const tText=tempProfiles[temp].meaning;
+    let priceText="";
+    if(price<thr.lowPrice) priceText=" Der Produktpreis ist relativ niedrig, deshalb muss der Funnel mehr Volumen erzeugen.";
+    else if(price>=thr.highPrice) priceText=" Der Produktpreis ist hoch genug, um weniger Verkäufe zu benötigen — dafür müssen Vertrauen und Abschlusslogik sitzen.";
+    let roasText="";
+    if(temp==="cold") roasText=" Bei eiskalter Zielgruppe ist ein niedrigerer Start-ROAS normal, weil zuerst Vertrauen aufgebaut werden muss.";
+    else if(temp==="warm") roasText=" Eine warme Zielgruppe verbessert die Ausgangslage, ersetzt aber keine saubere Funnel-Kalkulation.";
+    else roasText=" Eine kaufbereite Zielgruppe reduziert den Überzeugungsaufwand deutlich.";
+    return`Du hast dich als ${labels[skill]} eingestuft: ${sText}. Gleichzeitig ist deine Zielgruppe eine ${labels[temp]}: ${tText}. Für ${fmt(profit)} Zielprofit bei ${fmt(price)} Produktpreis brauchst du ungefähr ${n} Verkäufe. ${pressureText(n)}${roasText}${priceText}`;
+  }
+
+  function calculate(){
+    if(!validate()) return;
+    const profit=Math.max(Number(state.profit),1);
+    const price=Math.max(Number(state.price),1);
+    const n=Math.ceil(profit/price);
+    const m=calcMetrics(state.skill,state.temperature,n,price);
+    const a=mainAssessment(m);
+    const rec=getRecommendation(state.skill,state.temperature,n,price,m);
+
+    document.getElementById("placeholder").style.display="none";
+    const res=document.getElementById("results");
+    res.style.display="flex";
+    setTimeout(()=>res.classList.add("visible"),10);
+
+    document.getElementById("mainStatus").textContent=a.title;
+    document.getElementById("summary").textContent=a.text;
+    setPill("mainPill",a.pill,a.color);
+    document.getElementById("salesNeeded").textContent=n.toLocaleString("de-DE");
+    setPill("profitability",m.profit,colorFromLevel(m.profit));
+    setPill("roas",m.roas,colorFromLevel(m.roas));
+    setPill("budget",m.budget,colorFromLevel(m.budget));
+    setPill("risk",m.risk,colorFromLevel(m.risk));
+    document.getElementById("recommendation").innerHTML=`<b>${rec.title}</b>${rec.text}`;
+    document.getElementById("explain").textContent=buildExplain(state.skill,state.temperature,profit,price,n);
+  }
+</script>
+</body>
+</html>
