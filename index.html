@@ -538,7 +538,7 @@
             <div class="metric">
               <div>
                 <b>Benötigte Verkäufe</b>
-                <span>Zielprofit geteilt durch durchschnittlichen Produktpreis.</span>
+                <span>Zielprofit ÷ Nettomarge pro Verkauf (je nach Zielgruppen-Temperatur: 35–55% nach Ads, Tools, Zeit & Steuern).</span>
               </div>
               <div class="big-number" id="salesNeeded">10</div>
             </div>
@@ -715,7 +715,14 @@
     if(!validate()) return;
     const profit=Math.max(Number(state.profit),1);
     const price=Math.max(Number(state.price),1);
-    const n=Math.ceil(profit/price);
+    // Nettomarge nach Werbebudget, Tools, Zeit, Plattformgebühren & Steuern
+    // Basierend auf Branchendurchschnitt Coaching/Beratung:
+    // Kalt: ~35% (hohe Ad-Kosten, kalte Audience braucht mehr Budget)
+    // Warm: ~45% (moderate Ads, Vertrauen vorhanden)
+    // Ready: ~55% (wenig Ads nötig, hohe Conversion)
+    const netMargin = state.temperature==="cold" ? 0.35 : state.temperature==="warm" ? 0.45 : 0.55;
+    const netPerSale=price*netMargin;
+    const n=Math.ceil(profit/netPerSale);
     const m=calcMetrics(state.skill,state.temperature,n,price);
     const a=mainAssessment(m);
     const rec=getRecommendation(state.skill,state.temperature,n,price,m);
